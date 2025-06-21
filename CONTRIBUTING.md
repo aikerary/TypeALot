@@ -42,19 +42,37 @@ Thank you for your interest in contributing to TypeALot! We appreciate your help
    cd TypeALot
    ```
 
-2. **Install dependencies**
+2. **Install dependencies** (choose your preferred package manager)
    ```bash
-   bun install
+   bun install       # Using Bun (recommended)
+   # OR
+   npm install       # Using npm
+   # OR
+   yarn install      # Using Yarn
+   # OR
+   pnpm install      # Using pnpm
    ```
 
 3. **Start the development server**
    ```bash
-   bun run dev
+   bun run dev       # Using Bun
+   # OR
+   npm run dev       # Using npm
+   # OR
+   yarn dev          # Using Yarn
+   # OR
+   pnpm run dev      # Using pnpm
    ```
 
 4. **Run tests** (when available)
    ```bash
-   bun test
+   bun test          # Using Bun
+   # OR
+   npm test          # Using npm
+   # OR
+   yarn test         # Using Yarn
+   # OR
+   pnpm test         # Using pnpm
    ```
 
 ## 📝 Coding Standards

@@ -41,11 +41,23 @@ git clone https://github.com/aikerary/TypeALot.git
 # Navigate to the project directory
 cd TypeALot
 
-# Install dependencies
-bun install
+# Install dependencies (choose your preferred package manager)
+bun install       # Using Bun (recommended)
+# OR
+npm install       # Using npm
+# OR
+yarn install      # Using Yarn
+# OR
+pnpm install      # Using pnpm
 
 # Start the development server
-bun run dev
+bun run dev       # Using Bun
+# OR
+npm run dev       # Using npm
+# OR
+yarn dev          # Using Yarn
+# OR
+pnpm run dev      # Using pnpm
 ```
 
 ### Usage
