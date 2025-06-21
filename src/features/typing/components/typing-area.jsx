@@ -1,40 +1,82 @@
-import { useState } from 'react'
+import { useEffect, useRef } from 'react'
+import { useTypingStore } from '../stores/typing-store'
 
-export function TypingArea({ text, onProgress }) {
-  const [currentInput, setCurrentInput] = useState('')
-  const [currentIndex, setCurrentIndex] = useState(0)
+export function TypingArea() {
+  const { 
+    currentText, 
+    userInput, 
+    currentIndex, 
+    errors,
+    updateUserInput,
+    resetTyping 
+  } = useTypingStore()
+  
+  const textareaRef = useRef(null)
 
-  const handleInput = (e) => {
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus()
+    }
+  }, [])
+
+  const handleInputChange = (e) => {
     const value = e.target.value
-    setCurrentInput(value)
     
-    if (value === text.slice(0, value.length)) {
-      setCurrentIndex(value.length)
-      onProgress?.(value.length, text.length)
+    if (errors.length > 0 && value.length > userInput.length) {
+      return
+    }
+    
+    updateUserInput(value)
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      resetTyping()
     }
   }
 
+  const renderText = () => {
+    return currentText.split('').map((char, index) => {
+      let className = 'text-gray-400'
+      
+      if (index < currentIndex) {
+        className = 'text-green-400'
+      } else if (index === currentIndex) {
+        className = 'bg-blue-500 text-white'
+      } else if (errors.includes(index)) {
+        className = 'bg-red-500 text-white'
+      }
+      
+      return (
+        <span key={index} className={className}>
+          {char === ' ' ? '\u00A0' : char}
+        </span>
+      )
+    })
+  }
+
   return (
-    <div className="typing-area">
-      <div className="text-display p-6 bg-gray-800 rounded-lg font-mono text-lg">
-        <span className="text-green-400">
-          {text.slice(0, currentIndex)}
-        </span>
-        <span className="bg-blue-500 text-white">
-          {text[currentIndex] || ''}
-        </span>
-        <span className="text-gray-400">
-          {text.slice(currentIndex + 1)}
-        </span>
+    <div className="space-y-4">
+      <div className="bg-gray-900 p-6 rounded-lg font-mono text-xl leading-relaxed border">
+        {renderText()}
       </div>
       
       <textarea
-        value={currentInput}
-        onChange={handleInput}
-        className="w-full mt-4 p-4 bg-gray-700 text-white rounded-lg font-mono text-lg"
-        placeholder="Start typing here..."
-        rows={4}
+        ref={textareaRef}
+        value={userInput}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        className="w-full p-4 bg-gray-700 text-white rounded-lg font-mono text-lg resize-none"
+        placeholder="Start typing... (Press Esc to reset)"
+        rows={3}
+        spellCheck={false}
       />
+      
+      {errors.length > 0 && (
+        <div className="text-red-400 text-sm">
+          Fix the error to continue typing
+        </div>
+      )}
     </div>
   )
 } 

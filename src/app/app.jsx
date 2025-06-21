@@ -3,6 +3,7 @@ import { TypingArea } from '../features/typing/components/typing-area'
 import { KeyboardLayout } from '../features/keyboard/components/keyboard-layout'
 import { TypingStats } from '../features/stats/components/typing-stats'
 import { useTypingStore } from '../features/typing/stores/typing-store'
+import { getSampleTexts } from '../utils/text-utils'
 
 function App() {
   const {
@@ -12,30 +13,32 @@ function App() {
     errors,
     wpm,
     accuracy,
-    updateUserInput,
-    calculateStats,
+    isTyping,
+    startTime,
+    setCurrentText,
     resetTyping
   } = useTypingStore()
 
   const [timeElapsed, setTimeElapsed] = useState(0)
+  const sampleTexts = getSampleTexts()
 
-  // Timer effect
   useEffect(() => {
-    if (userInput.length > 0) {
-      const interval = setInterval(() => {
-        setTimeElapsed(prev => prev + 1)
-        calculateStats()
+    let interval
+    if (isTyping && startTime) {
+      interval = setInterval(() => {
+        setTimeElapsed(Math.floor((Date.now() - startTime) / 1000))
       }, 1000)
-
-      return () => clearInterval(interval)
+    } else {
+      setTimeElapsed(0)
     }
-  }, [userInput, calculateStats])
-
-  const handleTypingProgress = (current, total) => {
-    if (current === total) {
-      // Typing completed
-      console.log('Typing completed!')
+    
+    return () => {
+      if (interval) clearInterval(interval)
     }
+  }, [isTyping, startTime])
+
+  const handleTextChange = (text) => {
+    setCurrentText(text)
   }
 
   const handleReset = () => {
@@ -44,6 +47,7 @@ function App() {
   }
 
   const currentChar = currentText[currentIndex]
+  const isCompleted = currentIndex === currentText.length
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -74,18 +78,37 @@ function App() {
             <h2 className="text-xl font-semibold text-green-400">
               Practice Text
             </h2>
-            <button
-              onClick={handleReset}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors"
-            >
-              Reset
-            </button>
+            <div className="flex gap-2">
+              <select 
+                onChange={(e) => handleTextChange(e.target.value)}
+                className="px-3 py-2 bg-gray-700 text-white rounded-lg text-sm"
+                value={currentText}
+              >
+                {sampleTexts.map((text, index) => (
+                  <option key={index} value={text}>
+                    Text {index + 1}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleReset}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors"
+              >
+                Reset
+              </button>
+            </div>
           </div>
           
-          <TypingArea
-            text={currentText}
-            onProgress={handleTypingProgress}
-          />
+          {isCompleted && (
+            <div className="mb-4 p-4 bg-green-900/20 border border-green-700 rounded-lg">
+              <h3 className="text-green-400 font-semibold">🎉 Congratulations!</h3>
+              <p className="text-green-300 text-sm">
+                You've completed the text! Final stats: {wpm} WPM, {accuracy}% accuracy
+              </p>
+            </div>
+          )}
+          
+          <TypingArea />
         </div>
 
         {/* Keyboard Guide */}
